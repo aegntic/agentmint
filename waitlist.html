@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentMint Waitlist — A2A Payment Infrastructure</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦊</text></svg>">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --bg: #0a0a0f; --surface: #12121a; --border: #1f1f2e; --text: #e4e4e7; --text-dim: #71717a; --accent: #f97316; }
+    body { font-family: 'SF Mono', monospace; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+    .container { max-width: 500px; text-align: center; }
+    h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    h1 span { color: var(--accent); }
+    .subtitle { color: var(--text-dim); margin-bottom: 2rem; font-size: 1rem; }
+    .waitlist-form { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    input { flex: 1; padding: 0.875rem 1rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); font-family: inherit; font-size: 0.9rem; }
+    input:focus { outline: none; border-color: var(--accent); }
+    button { padding: 0.875rem 1.5rem; background: var(--accent); color: #000; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    button:hover { opacity: 0.9; }
+    .message { padding: 1rem; border-radius: 6px; margin-top: 1rem; display: none; }
+    .message.success { background: #064e3b; color: #4ade80; display: block; }
+    .message.error { background: #7f1d1d; color: #fca5a5; display: block; }
+    .note { color: var(--text-dim); font-size: 0.8rem; margin-top: 1.5rem; }
+    .stats { margin-top: 2rem; padding: 1rem; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); }
+    .stats p { font-size: 0.875rem; color: var(--text-dim); }
+    .stats strong { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Agent<span>Mint</span> 🦊</h1>
+    <p class="subtitle">A2A payment infrastructure for AI agents</p>
+    
+    <form id="waitlist-form" class="waitlist-form">
+      <input type="email" id="email" placeholder="your@email.com" required>
+      <button type="submit">Join Waitlist</button>
+    </form>
+    
+    <div id="message" class="message"></div>
+    
+    <p class="note">Get early access + exclusive pricing. No spam, ever.</p>
+    
+    <div class="stats">
+      <p>Launch pricing: <strong>$49/mo</strong> (normally $99)</p>
+      <p>Join <strong>12</strong> others on the waitlist</p>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('waitlist-form');
+    const message = document.getElementById('message');
+    
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      
+      // Store in D1 or just log for now
+      console.log('Waitlist signup:', email);
+      
+      message.textContent = 'You\'re in! Check your email for confirmation.';
+      message.className = 'message success';
+      form.reset();
+    });
+  </script>
+</body>
+</html>

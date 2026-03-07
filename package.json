@@ -1,5 +1,5 @@
 {
-  "name": "agentmint",
+  "name": "@aegntic/agentmint",
   "version": "1.0.0",
   "description": "A2A payment infrastructure for AI agents",
   "main": "index.js",
