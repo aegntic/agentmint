@@ -135,6 +135,67 @@
       font-size: 0.8rem;
       overflow-x: auto;
     }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      padding: 2rem 0;
+    }
+    .price-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      position: relative;
+    }
+    .price-card.popular {
+      border-color: var(--accent);
+      box-shadow: 0 0 30px var(--accent-glow);
+    }
+    .price-card .badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #000;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+    }
+    .price-card h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+    .price-card .price {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .price-card .price span {
+      font-size: 1rem;
+      color: var(--text-dim);
+      font-weight: 400;
+    }
+    .price-card p {
+      color: var(--text-dim);
+      font-size: 0.875rem;
+      margin-bottom: 1.5rem;
+    }
+    .price-card ul {
+      list-style: none;
+      margin-bottom: 1.5rem;
+    }
+    .price-card ul li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.875rem;
+      color: var(--text-dim);
+    }
+    .price-card ul li:last-child {
+      border-bottom: none;
+    }
     footer {
       border-top: 1px solid var(--border);
       padding: 2rem 0;
@@ -151,6 +212,7 @@
       <div class="logo">Agent<span>Mint</span> 🦊</div>
       <nav>
         <a href="#install">Install</a>
+        <a href="#pricing">Pricing</a>
         <a href="#features">Features</a>
         <a href="#demo">Demo</a>
         <a href="https://github.com/aegntic/agentmint" target="_blank">GitHub</a>
@@ -189,6 +251,48 @@
       <div class="feature">
         <h3><span>📡</span> Webhooks</h3>
         <p>Real-time payment confirmations. Revenue dashboard included.</p>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <h2>Pricing</h2>
+      <div class="pricing-grid">
+        <div class="price-card">
+          <h3>Dev</h3>
+          <div class="price">Free</div>
+          <p>For experiments and prototypes</p>
+          <ul>
+            <li>1,000 tx/month</li>
+            <li>Testnet only</li>
+            <li>Community support</li>
+          </ul>
+          <a href="#install" class="cta" style="margin-top:1rem">Install →</a>
+        </div>
+        <div class="price-card popular">
+          <div class="badge">Most Popular</div>
+          <h3>Pro</h3>
+          <div class="price">$49<span>/mo</span></div>
+          <p>For production agent fleets</p>
+          <ul>
+            <li>100,000 tx/month</li>
+            <li>Mainnet + testnet</li>
+            <li>1% transaction fee</li>
+            <li>Priority support</li>
+          </ul>
+          <a href="#" class="cta" style="margin-top:1rem">Coming Soon</a>
+        </div>
+        <div class="price-card">
+          <h3>Enterprise</h3>
+          <div class="price">$499<span>/mo</span></div>
+          <p>For networks at scale</p>
+          <ul>
+            <li>Unlimited tx</li>
+            <li>Custom tokens</li>
+            <li>0.5% transaction fee</li>
+            <li>Dedicated infrastructure</li>
+          </ul>
+          <a href="#" class="cta" style="margin-top:1rem">Coming Soon</a>
+        </div>
       </div>
     </section>
 
