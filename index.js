@@ -3,13 +3,24 @@
  * 
  * One-line setup to accept agent-to-agent payments:
  * 
- * const { AgentPayment } = require('agentmint');
- * const payment = new AgentPayment({ wallet: '0x...', acceptedTokens: ['USDC', 'ETH'] });
+ * const { AgentPayment } = require('@aegntic/agentmint');
+ * const payment = new AgentPayment({ wallet: '0x...', acceptedTokens: ['USDC', 'ETH', 'USD', 'AUD'] });
  * app.use('/api', payment.middleware());
  */
 
 const Stripe = require('stripe');
 const express = require('express');
+
+const STRIPE_TOKEN_CURRENCY_MAP = {
+  USDC: 'usd',
+  USD: 'usd',
+  AUD: 'aud'
+};
+
+const CURRENCY_DECIMALS = {
+  usd: 2,
+  aud: 2
+};
 
 class AgentPayment {
   constructor(options = {}) {
@@ -25,13 +36,16 @@ class AgentPayment {
   }
 
   setupRoutes() {
-    this.app.use(express.json());
+    // Stripe signature verification requires the raw request body.
+    this.app.post(
+      '/webhook',
+      express.raw({ type: 'application/json' }),
+      this.handleWebhook.bind(this)
+    );
     
     // x402 Payment Request endpoint
+    this.app.use(express.json());
     this.app.post('/pay', this.handlePaymentRequest.bind(this));
-    
-    // Webhook for payment confirmations
-    this.app.post('/webhook', this.handleWebhook.bind(this));
     
     // Generate agent payment card/link
     this.app.get('/card', this.generatePaymentCard.bind(this));
@@ -47,6 +61,20 @@ class AgentPayment {
   async handlePaymentRequest(req, res) {
     try {
       const { from, amount, token, description, mandate } = req.body;
+      const normalizedToken = this.normalizeToken(token);
+
+      if (!this.wallet) {
+        return res.status(500).json({ error: 'No destination wallet configured' });
+      }
+      if (!normalizedToken) {
+        return res.status(400).json({ error: 'Token is required' });
+      }
+      if (!this.acceptedTokens.includes(normalizedToken)) {
+        return res.status(400).json({ error: `Unsupported token: ${token}` });
+      }
+      if (!this.isPositiveAmount(amount)) {
+        return res.status(400).json({ error: 'Amount must be a positive number' });
+      }
       
       // Verify mandate if provided (x402 compliance)
       if (mandate && !this.verifyMandate(mandate)) {
@@ -55,13 +83,20 @@ class AgentPayment {
 
       // Create payment intent with Stripe
       if (this.stripe) {
+        const currency = this.getStripeCurrency(normalizedToken);
+        if (!currency) {
+          return res.status(400).json({
+            error: `Stripe mode does not support ${normalizedToken}; use a fiat token such as USD or AUD`
+          });
+        }
+
         const paymentIntent = await this.stripe.paymentIntents.create({
-          amount: this.convertToCents(amount, token),
-          currency: this.getCurrency(token),
+          amount: this.convertToMinorUnits(amount, currency),
+          currency,
           metadata: {
             from_agent: from,
             to_agent: this.wallet,
-            token
+            token: normalizedToken
           },
           description
         });
@@ -78,9 +113,9 @@ class AgentPayment {
         type: 'crypto',
         to: this.wallet,
         amount,
-        token,
+        token: normalizedToken,
         description,
-        instructions: `Send ${amount} ${token} to ${this.wallet}`
+        instructions: `Send ${amount} ${normalizedToken} to ${this.wallet}`
       });
     } catch (error) {
       return res.status(500).json({ error: error.message });
@@ -91,6 +126,9 @@ class AgentPayment {
    * Handle Stripe webhooks for payment confirmations
    */
   async handleWebhook(req, res) {
+    if (!this.stripe) {
+      return res.status(400).json({ error: 'Stripe is not configured' });
+    }
     if (!this.webhookSecret) {
       return res.status(400).json({ error: 'No webhook secret configured' });
     }
@@ -136,15 +174,26 @@ class AgentPayment {
     }
 
     try {
+      const amount = req.query.amount || 1;
+      const currency = String(req.query.currency || 'USD').toLowerCase();
+      const description = req.query.description || 'Payment for AI agent services';
+
+      if (!this.isPositiveAmount(amount)) {
+        return res.status(400).json({ error: 'Amount must be a positive number' });
+      }
+      if (!CURRENCY_DECIMALS[currency]) {
+        return res.status(400).json({ error: `Unsupported currency: ${currency}` });
+      }
+
       const paymentLink = await this.stripe.paymentLinks.create({
         line_items: [{
           price_data: {
-            currency: 'usd',
+            currency,
             product_data: {
               name: 'Agent Service Payment',
-              description: 'Payment for AI agent services'
+              description
             },
-            unit_amount: 100 // $1.00 minimum
+            unit_amount: this.convertToMinorUnits(amount, currency)
           },
           quantity: 1
         }],
@@ -196,25 +245,26 @@ class AgentPayment {
   }
 
   /**
-   * Convert amount to cents based on token
+   * Convert amount to the gateway's minor unit amount
    */
-  convertToCents(amount, token) {
-    // USDC = 6 decimals, ETH = 18 decimals
-    const decimals = token === 'USDC' ? 2 : 0; // Simplified
-    return Math.floor(amount * Math.pow(10, decimals));
+  convertToMinorUnits(amount, currency) {
+    const decimals = CURRENCY_DECIMALS[currency] ?? 2;
+    return Math.round(Number(amount) * Math.pow(10, decimals));
   }
 
   /**
    * Get Stripe currency code
    */
-  getCurrency(token) {
-    const map = {
-      'USDC': 'usd',
-      'ETH': 'usd', // Convert crypto to USD for Stripe
-      'USD': 'usd',
-      'AUD': 'aud'
-    };
-    return map[token] || 'usd';
+  getStripeCurrency(token) {
+    return STRIPE_TOKEN_CURRENCY_MAP[token] || null;
+  }
+
+  normalizeToken(token) {
+    return typeof token === 'string' ? token.toUpperCase() : '';
+  }
+
+  isPositiveAmount(amount) {
+    return Number.isFinite(Number(amount)) && Number(amount) > 0;
   }
 
   /**

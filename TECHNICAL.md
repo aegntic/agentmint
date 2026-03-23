@@ -19,24 +19,16 @@ git clone https://github.com/aegntic/agentmint
 ## Quick Start
 
 ```javascript
-const { AgentPayment } = require('agentmint');
+const { AgentPayment } = require('@aegntic/agentmint');
 
 // Initialize with your wallet
 const payment = new AgentPayment({
   wallet: '0x742d35Cc6634C0532925a3b844Bc9e7595f0fD00',
-  acceptedTokens: ['USDC', 'ETH', 'AUD']
+  acceptedTokens: ['USDC', 'ETH', 'USD', 'AUD']
 });
 
 // Express middleware
 app.use('/payments', payment.middleware());
-
-// Now your agent can:
-await payment.request({
-  from: 'agent-2',
-  amount: '1.00',
-  token: 'USDC',
-  description: 'Data processing fee'
-});
 ```
 
 ## API Reference
@@ -53,12 +45,16 @@ Request payment from another agent.
 }
 ```
 
+If Stripe is configured, `USDC`, `USD`, and `AUD` create PaymentIntents. In crypto-only mode, supported tokens return wallet payment instructions.
+
 ### GET /payments/card
 Generate payment link for human users.
 
 ```
 /payments/card?amount=49&currency=USD&description=Pro%20Plan
 ```
+
+Supported `currency` values for payment links are `USD` and `AUD`.
 
 ### POST /payments/webhook
 Receive payment confirmations.

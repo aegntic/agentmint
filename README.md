@@ -1,24 +1,19 @@
-# AgentMint 🦊
+# AgentMint
 
 > One-click A2A payment infrastructure for AI agents
-
-## Live
-- **API:** Running on port 3000 (helios-ae)
-- **Landing:** `index.html` ready
-- **npm:** Not published (need credentials)
 
 ## Quick Start
 
 ```bash
-npm install agentmint
+npm install @aegntic/agentmint
 ```
 
 ```javascript
-const { AgentPayment } = require('agentmint');
+const { AgentPayment } = require('@aegntic/agentmint');
 
 const payment = new AgentPayment({ 
   wallet: '0x742d...',
-  acceptedTokens: ['USDC', 'ETH', 'AUD']
+  acceptedTokens: ['USDC', 'ETH', 'USD', 'AUD']
 });
 
 app.use('/payments', payment.middleware());
@@ -32,13 +27,10 @@ app.use('/payments', payment.middleware());
 | POST | /payments/webhook | Stripe webhook |
 | GET | /payments/card | Generate payment link |
 | GET | /payments/revenue | Revenue stats |
-| GET | /health | Health check |
 
-## TODO
+## Notes
 
-- [ ] Publish to npm (need npm login)
-- [ ] Deploy to Cloudflare Workers
-- [ ] Set up agentmint.aegntic.ai subdomain
-- [ ] Wire Stripe webhook to production
-- [ ] Landing page at agentmint.aegntic.ai
-- [ ] First 5 users
+- `USDC`, `USD`, and `AUD` are supported in Stripe mode.
+- `ETH` is supported in crypto-only mode and returns direct wallet payment instructions.
+- Stripe webhooks require the raw request body, which AgentMint handles internally on `/payments/webhook`.
+- The `/health` route exists in the demo server at [server.js](/Users/iamcatface/agentmint/server.js), not in the exported middleware itself.
