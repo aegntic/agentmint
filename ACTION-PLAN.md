@@ -93,9 +93,10 @@
 
 ### 3.1 Stripe Integration
 
-- [ ] Add Stripe keys to credentials.md
+- [ ] Add Stripe keys to credentials.md or wrangler.toml
 - [ ] Test checkout flow
 - [ ] Set up Stripe products (or use dynamic)
+- [ ] Webhook already wired in code - just needs STRIPE_SECRET_KEY env var
 
 ### 3.2 Revenue Tracking
 
@@ -184,11 +185,24 @@
 ## 🔥 IMMEDIATE ACTIONS (I Can Do Now)
 
 1. [ ] Post tweet 1 (need approval)
-2. [ ] Create simple waitlist page
+2. [ ] Create simple waitlist page - DONE but needs polish
 3. [ ] Research more creators
 4. [ ] Set up email capture (needs D1 or external)
 5. [ ] Update README with install stats
 6. [ ] Check for npm package views
+
+## ⚡ OPERATIONAL EXCELLENCE (NON-NEGOTIABLE)
+
+- [ ] Waitlist: Telegram notification must fire every time (make non-blocking)
+- [ ] Waitlist: Confirmation email sequence (auto-responder)
+- [ ] Waitlist: Success page should show "what happens next"
+- [ ] Stripe: Full checkout flow wired and tested BEFORE launch
+- [ ] Health: All endpoints return proper status codes
+- [ ] Logs: Errors should be logged and alertable
+- [ ] Deployment: Zero-downtime deploys verified
+- [ ] Data: Backup strategy for D1 waitlist
+
+**No gaps. No excuses. Everything works or it gets fixed.**
 
 ---
 
